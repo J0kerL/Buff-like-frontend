@@ -1,5 +1,17 @@
 <template>
   <div class="wallet-page">
+    <!-- 账户概览 -->
+    <GlassPanel>
+      <h2 class="section-title">账户概览</h2>
+      <div class="stat-grid">
+        <StatCard label="账户余额" :value="money(balance)" />
+        <StatCard label="库存总量" :value="stats?.totalCount ?? 0" />
+        <StatCard label="在售数量" :value="stats?.onSaleCount ?? 0" />
+        <StatCard label="估算总值" :value="money(stats?.totalValue)" />
+      </div>
+    </GlassPanel>
+
+    <!-- 钱包余额 -->
     <GlassPanel>
       <h2 class="section-title">钱包余额</h2>
       <div class="balance">{{ money(balance) }}</div>
@@ -21,6 +33,7 @@
       </n-grid>
     </GlassPanel>
 
+    <!-- 资金流水 -->
     <GlassPanel>
       <h2 class="section-title">资金流水</h2>
       <n-data-table :columns="columns" :data="logs" :pagination="false" :scroll-x="950" />
@@ -42,13 +55,15 @@ import { computed, onMounted, reactive, ref } from 'vue';
 import { NButton, NDataTable, NGrid, NGridItem, NInputNumber, NPagination, useMessage } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import GlassPanel from '@/components/GlassPanel.vue';
-import { walletApi } from '@/api/modules';
-import type { WalletLog } from '@/types/api';
+import StatCard from '@/components/StatCard.vue';
+import { inventoryApi, walletApi } from '@/api/modules';
+import type { InventoryStatistics, WalletLog } from '@/types/api';
 import { formatDateTime, money } from '@/types/format';
 
 const message = useMessage();
 const isMobile = computed(() => window.innerWidth < 900);
 const balance = ref(0);
+const stats = ref<InventoryStatistics>();
 const rechargeAmount = ref<number | null>(100);
 const withdrawAmount = ref<number | null>(50);
 const logs = ref<WalletLog[]>([]);
@@ -69,6 +84,10 @@ const loadBalance = async () => {
   balance.value = Number(value || 0);
 };
 
+const loadStats = async () => {
+  stats.value = await inventoryApi.statistics();
+};
+
 const loadLogs = async () => {
   const data = await walletApi.logs({ ...query });
   logs.value = data.list;
@@ -80,7 +99,7 @@ const recharge = async () => {
   try {
     await walletApi.recharge(rechargeAmount.value);
     message.success('充值成功');
-    await Promise.all([loadBalance(), loadLogs()]);
+    await Promise.all([loadBalance(), loadStats(), loadLogs()]);
   } catch (error: any) {
     message.error(error.message || '充值失败');
   }
@@ -91,7 +110,7 @@ const withdraw = async () => {
   try {
     await walletApi.withdraw(withdrawAmount.value);
     message.success('提现成功');
-    await Promise.all([loadBalance(), loadLogs()]);
+    await Promise.all([loadBalance(), loadStats(), loadLogs()]);
   } catch (error: any) {
     message.error(error.message || '提现失败');
   }
@@ -99,9 +118,9 @@ const withdraw = async () => {
 
 onMounted(async () => {
   try {
-    await Promise.all([loadBalance(), loadLogs()]);
+    await Promise.all([loadBalance(), loadStats(), loadLogs()]);
   } catch (error: any) {
-    message.error(error.message || '加载钱包失败');
+    message.error(error.message || '加载数据失败');
   }
 });
 </script>
@@ -110,6 +129,13 @@ onMounted(async () => {
 .wallet-page {
   display: grid;
   gap: 14px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
 .balance {

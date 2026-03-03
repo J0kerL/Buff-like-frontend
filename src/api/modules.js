@@ -41,6 +41,9 @@ export const marketApi = {
     },
     cancelListing(id) {
         return http.delete(`/market/list/${id}`);
+    },
+    hotItems(params) {
+        return http.get('/market/hot-items', { params });
     }
 };
 export const orderApi = {
