@@ -14,6 +14,23 @@ export const money = (value?: number | string) => {
 
 export const wearText = (wear?: number | string) => {
   const num = Number(wear ?? 0);
-  return num.toFixed(4);
+  if (num < 0.07) return '崭新出厂';
+  if (num < 0.15) return '略有磨损';
+  if (num < 0.37) return '久经沙场';
+  if (num < 0.44) return '破损不堪';
+  return '战痕累累';
+};
+
+export const wearRange = wearText;
+
+export const wearRangeBounds = (label: string): [number, number] => {
+  switch (label) {
+    case '崭新出厂': return [0, 0.07];
+    case '略有磨损': return [0.07, 0.15];
+    case '久经沙场': return [0.15, 0.37];
+    case '破损不堪': return [0.37, 0.44];
+    case '战痕累累': return [0.44, 1.0];
+    default: return [0, 1.0];
+  }
 };
 

@@ -14,6 +14,7 @@ const routes = [
             { path: '', redirect: '/dashboard' },
             { path: 'dashboard', name: 'dashboard', component: () => import('@/views/DashboardView.vue') },
             { path: 'market', name: 'market', component: () => import('@/views/MarketView.vue') },
+            { path: 'market/detail', name: 'marketDetail', component: () => import('@/views/MarketDetailView.vue') },
             { path: 'inventory', name: 'inventory', component: () => import('@/views/InventoryView.vue') },
             { path: 'orders', name: 'orders', component: () => import('@/views/OrdersView.vue') },
             { path: 'wallet', name: 'wallet', component: () => import('@/views/WalletView.vue') }

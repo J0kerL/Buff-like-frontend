@@ -413,28 +413,31 @@ createCaptcha();
 .captcha-row,
 .code-row {
   display: grid;
-  grid-template-columns: 1fr 120px;
+  grid-template-columns: 1fr 140px;
   gap: 10px;
+  width: 100%;
+  align-items: center;
 }
 
 .captcha-box {
   position: relative;
-  height: 40px;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  height: 34px;
+  border: none;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
   font-weight: 700;
-  font-size: 20px;
-  letter-spacing: 0.25em;
-  color: #0f766e;
+  font-size: 18px;
+  letter-spacing: 0.3em;
+  color: #fff;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   user-select: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
   overflow: hidden;
+  box-shadow: 0 2px 6px rgba(15, 118, 110, 0.25);
 }
 
 .captcha-box::before {
@@ -442,24 +445,48 @@ createCaptcha();
   position: absolute;
   inset: 0;
   background: repeating-linear-gradient(
-    45deg,
+    -45deg,
     transparent,
-    transparent 10px,
-    rgba(15, 118, 110, 0.03) 10px,
-    rgba(15, 118, 110, 0.03) 20px
+    transparent 6px,
+    rgba(255, 255, 255, 0.06) 6px,
+    rgba(255, 255, 255, 0.06) 12px
   );
   pointer-events: none;
 }
 
 .captcha-box:hover {
-  border-color: #0f766e;
-  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(15, 118, 110, 0.15);
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
 }
 
 .captcha-box:active {
   transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(15, 118, 110, 0.2);
+}
+
+.code-row :deep(.n-button) {
+  height: 34px;
+  border-radius: 6px;
+  border: 1px solid #0f766e;
+  color: #0f766e;
+  font-weight: 600;
+  font-size: 13px;
+  background: transparent;
+  transition: all 0.25s ease;
+}
+
+.code-row :deep(.n-button:hover) {
+  background: #0f766e;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(15, 118, 110, 0.25);
+}
+
+.code-row :deep(.n-button:disabled),
+.code-row :deep(.n-button[disabled]) {
+  border-color: #cbd5e1;
+  color: #94a3b8;
+  background: #f1f5f9;
 }
 
 .switch-row {

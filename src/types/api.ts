@@ -56,6 +56,7 @@ export interface MarketListing {
   inventoryId: number;
   templateId: number;
   itemName: string;
+  itemType?: string;
   iconUrl: string;
   wearValue: number;
   price: number;
