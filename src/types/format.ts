@@ -9,7 +9,7 @@ export const formatDateTime = (value?: string) => {
 
 export const money = (value?: number | string) => {
   const amount = Number(value ?? 0);
-  return amount.toFixed(2);
+  return '￥' + amount.toFixed(2);
 };
 
 export const wearText = (wear?: number | string) => {

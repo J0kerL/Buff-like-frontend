@@ -76,7 +76,7 @@
             </div>
             <div class="item-footer">
               <div class="item-price">{{ money(item.price) }}</div>
-              <n-button size="small" type="primary" @click="goToMarket(item.id)">
+              <n-button size="small" type="primary" @click="goToMarket(item)">
                 查看详情
               </n-button>
             </div>
@@ -111,7 +111,7 @@ const newsList = [
     description: '全新收藏品现已开放交易，热门新品抢先看。',
     date: '2024-03-15',
     image: 'https://market.fp.ps.netease.com/file/6971c8c418c0d5c5d9e4a9aa4EIh9Xw307',
-    link: 'https://buff.163.com/market/csgo#game=csgo&page_num=1&itemset=set_timed_drops_exuberant,set_timed_drops_achroma'
+    link: 'https://buff.163.com/news/86060'
   },
   {
     title: 'BUFF移动端APP',
@@ -148,8 +148,14 @@ const loadHotItems = async () => {
   }
 };
 
-const goToMarket = (id: number) => {
-  router.push(`/market?id=${id}`);
+const goToMarket = (item: MarketListing) => {
+  router.push({
+    path: '/market/detail',
+    query: {
+      name: item.itemName,
+      wear: wearText(item.wearValue)
+    }
+  });
 };
 
 const prevNews = () => {

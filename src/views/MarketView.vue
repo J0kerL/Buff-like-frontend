@@ -57,7 +57,7 @@
                 group.itemName
               }}（{{ group.wearLabel }}）</h3>
             <div class="price-row">
-              <div class="price">¥{{ money(group.minPrice) }}</div>
+              <div class="price">{{ money(group.minPrice) }}</div>
             </div>
           </div>
         </div>

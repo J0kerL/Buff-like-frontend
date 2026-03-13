@@ -19,7 +19,7 @@
             </div>
           </div>
           <div class="detail-action">
-            <div class="detail-price">¥{{ money(item.price) }}</div>
+            <div class="detail-price">{{ money(item.price) }}</div>
             <n-button type="primary" class="buy-btn" @click="buy(item.id)">立即购买</n-button>
           </div>
         </div>

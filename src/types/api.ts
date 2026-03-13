@@ -36,6 +36,7 @@ export interface InventoryItem {
   wearValue: number;
   patternIndex: number;
   status: number;
+  lockExpireTime?: string;
   getTime: string;
 }
 
