@@ -72,6 +72,7 @@ export interface OrderItem {
   sellerId: number;
   itemName: string;
   iconUrl: string;
+  wearValue?: number;
   totalAmount: number;
   status: number;
   createTime: string;

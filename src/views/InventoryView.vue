@@ -509,25 +509,29 @@ const handleList = async () => {
 // 下架
 const handleDelist = async () => {
   delistLoading.value = true;
+  const onSaleItems = selectedItems.value.filter(i => i.status === 1);
+  let successCount = 0;
+  let failCount = 0;
   try {
-    const onSaleItems = selectedItems.value.filter(i => i.status === 1);
-    // 查询我的在售列表，找到对应的 listingId
-    const result = await marketApi.myListings({ pageNum: 1, pageSize: 9999 });
-    const myListings = result.list;
-    let successCount = 0;
     for (const item of onSaleItems) {
-      const listing = myListings.find(l => l.inventoryId === item.id);
-      if (listing) {
-        await marketApi.cancelListing(listing.id);
+      try {
+        // 直接传 inventoryId，后端负责查找对应 listingId 并下架
+        await marketApi.cancelListingByInventoryId(item.id);
         successCount++;
+      } catch (e: any) {
+        failCount++;
+        console.error(`下架失败 inventoryId=${item.id}:`, e.message);
       }
     }
-    message.success(`成功下架 ${successCount} 件饰品`);
-    clearSelection();
-    load();
-  } catch (error: any) {
-    message.error(error.message || '下架失败');
+    if (successCount > 0) {
+      message.success(`成功下架 ${successCount} 件饰品`);
+    }
+    if (failCount > 0) {
+      message.warning(`${failCount} 件饰品下架失败，请刷新后重试`);
+    }
   } finally {
+    clearSelection();
+    await load();
     delistLoading.value = false;
   }
 };

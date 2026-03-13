@@ -47,6 +47,9 @@ export const marketApi = {
   cancelListing(id: number) {
     return http.delete<void>(`/market/list/${id}`);
   },
+  cancelListingByInventoryId(inventoryId: number) {
+    return http.delete<void>(`/market/list/by-inventory/${inventoryId}`);
+  },
   hotItems(params: { pageNum: number; pageSize: number }) {
     return http.get<PageResult<MarketListing>>('/market/hot-items', { params });
   }

@@ -82,6 +82,15 @@ const actionButton = (label: string, action: () => Promise<void>, type: 'primary
     { default: () => label }
   );
 
+const wearLabel = (v?: number) => {
+  if (v == null) return null;
+  if (v <= 0.07) return '崭新出厂';
+  if (v <= 0.15) return '略有磨损';
+  if (v <= 0.38) return '久经沙场';
+  if (v <= 0.45) return '破损不堪';
+  return '战痕累累';
+};
+
 const buyColumns: DataTableColumns<OrderItem> = [
   { title: '订单号', key: 'orderNo', minWidth: 160 },
   { title: '物品', key: 'itemName', minWidth: 140 },
@@ -109,7 +118,15 @@ const buyColumns: DataTableColumns<OrderItem> = [
 
 const sellColumns: DataTableColumns<OrderItem> = [
   { title: '订单号', key: 'orderNo', minWidth: 160 },
-  { title: '物品', key: 'itemName', minWidth: 140 },
+  { title: '物品', key: 'itemName', minWidth: 160, render: (row) =>
+      h('div', null, [
+        h('div', null, row.itemName),
+        row.wearValue != null
+          ? h('div', { style: 'font-size:12px;color:#999;margin-top:2px;' },
+              `${wearLabel(row.wearValue)}  ${row.wearValue.toFixed(4)}`)
+          : null
+      ])
+  },
   { title: '金额', key: 'totalAmount', render: (row) => money(row.totalAmount) },
   { title: '状态', key: 'status', render: (row) => statusText(row.status) },
   { title: '下单时间', key: 'createTime', minWidth: 160, render: (row) => formatDateTime(row.createTime) },

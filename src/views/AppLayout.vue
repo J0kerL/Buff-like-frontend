@@ -46,7 +46,7 @@ const menuOptions: MenuOption[] = [
   { label: '首页', key: '/dashboard', icon: icon(GridOutline) },
   { label: '饰品市场', key: '/market', icon: icon(CartOutline) },
   { label: '我的库存', key: '/inventory', icon: icon(CubeOutline) },
-  { label: '我的出售', key: '/orders', icon: icon(ReceiptOutline) },
+  { label: '购买与出售', key: '/orders', icon: icon(ReceiptOutline) },
   { label: '我的', key: '/wallet', icon: icon(WalletOutline) }
 ];
 
