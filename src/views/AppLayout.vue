@@ -6,9 +6,11 @@
       :balance="money(authStore.user?.balance)"
       :menu-options="menuOptions"
       :current-path="currentPath"
+      :avatar="authStore.user?.avatar"
       @menu="showDrawer = true"
       @select="go"
       @logout="onLogout"
+      @profile="showProfile = true"
     />
 
     <div class="main-area">
@@ -21,6 +23,8 @@
         <n-button class="logout" tertiary type="error" block @click="onLogout">退出登录</n-button>
       </n-drawer-content>
     </n-drawer>
+
+    <ProfileModal v-model:show="showProfile" :user="authStore.user" />
   </div>
 </template>
 
@@ -30,6 +34,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { NButton, NDrawer, NDrawerContent, NIcon, NMenu, useMessage, type MenuOption } from 'naive-ui';
 import { GridOutline, CartOutline, CubeOutline, ReceiptOutline, WalletOutline } from '@vicons/ionicons5';
 import TopBar from '@/components/TopBar.vue';
+import ProfileModal from '@/components/ProfileModal.vue';
 import { useAuthStore } from '@/stores/auth';
 import { money } from '@/types/format';
 
@@ -38,6 +43,7 @@ const router = useRouter();
 const route = useRoute();
 const message = useMessage();
 const showDrawer = ref(false);
+const showProfile = ref(false);
 const isMobile = ref(window.innerWidth <= 900);
 
 const icon = (iconComp: any) => () => h(NIcon, null, { default: () => h(iconComp) });
