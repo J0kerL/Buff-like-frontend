@@ -9,12 +9,26 @@
   >
     <div class="profile-content">
       <div class="profile-header">
-        <n-avatar
-          round
-          :size="80"
-          :src="user?.avatar"
-          :fallback-src="defaultAvatar"
-        />
+        <div class="avatar-container">
+          <n-image
+            :src="user?.avatar || defaultAvatar"
+            :fallback-src="defaultAvatar"
+            object-fit="cover"
+            preview-disabled
+            class="avatar-image"
+            @click="showAvatarPreview = true"
+          />
+          <div class="avatar-edit-btn" @click="triggerFileInput">
+            <n-icon size="16"><CameraOutline /></n-icon>
+          </div>
+          <input
+            ref="fileInput"
+            type="file"
+            accept="image/*"
+            style="display: none"
+            @change="handleFileChange"
+          />
+        </div>
         <div class="profile-name">{{ user?.username || '用户' }}</div>
       </div>
 
@@ -31,7 +45,7 @@
         </div>
         <div class="info-item">
           <span class="info-label">钱包余额</span>
-          <span class="info-value balance">¥{{ formatMoney(user?.balance) }}</span>
+          <span class="info-value balance">￥{{ formatMoney(user?.balance) }}</span>
         </div>
         <div class="info-item">
           <span class="info-label">Steam账号</span>
@@ -78,11 +92,35 @@
       </n-form-item>
     </n-form>
   </n-modal>
+
+  <!-- 头像预览弹窗 -->
+  <n-modal v-model:show="showAvatarPreview" preset="card" title="我的头像" :style="{ width: '500px', maxWidth: '90vw' }">
+    <div class="avatar-preview">
+      <n-image
+        :src="user?.avatar || defaultAvatar"
+        :fallback-src="defaultAvatar"
+        object-fit="contain"
+        style="width: 100%; max-height: 60vh;"
+      />
+    </div>
+    <template #footer>
+      <div class="preview-footer">
+        <n-button @click="showAvatarPreview = false">关闭</n-button>
+        <n-button type="primary" @click="triggerFileInputFromPreview">
+          <template #icon>
+            <n-icon><CameraOutline /></n-icon>
+          </template>
+          更换头像
+        </n-button>
+      </div>
+    </template>
+  </n-modal>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { NModal, NAvatar, NDivider, NTag, NButton, NForm, NFormItem, NInput, useMessage } from 'naive-ui';
+import { NModal, NAvatar, NDivider, NTag, NButton, NForm, NFormItem, NInput, NIcon, NImage, useMessage } from 'naive-ui';
+import { CameraOutline } from '@vicons/ionicons5';
 import type { User } from '@/types/api';
 import { userApi } from '@/api/modules';
 import { useAuthStore } from '@/stores/auth';
@@ -98,6 +136,7 @@ const emit = defineEmits<{
 
 const message = useMessage();
 const authStore = useAuthStore();
+const fileInput = ref<HTMLInputElement | null>(null);
 
 const visible = computed({
   get: () => props.show,
@@ -106,8 +145,10 @@ const visible = computed({
 
 const defaultAvatar = 'https://07ec-86-36-80-22.ngrok-free.app/buff/default-avatar.png';
 const showBindDialog = ref(false);
+const showAvatarPreview = ref(false);
 const steamIdInput = ref('');
 const binding = ref(false);
+const uploading = ref(false);
 
 const formatMoney = (value?: number) => {
   if (value === undefined || value === null) return '0.00';
@@ -116,6 +157,47 @@ const formatMoney = (value?: number) => {
 
 const handleClose = () => {
   emit('update:show', false);
+};
+
+const triggerFileInput = () => {
+  fileInput.value?.click();
+};
+
+const triggerFileInputFromPreview = () => {
+  showAvatarPreview.value = false;
+  triggerFileInput();
+};
+
+const handleFileChange = async (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (!file) return;
+
+  // 验证文件类型
+  if (!file.type.startsWith('image/')) {
+    message.error('请选择图片文件');
+    return;
+  }
+
+  // 验证文件大小（最大2MB）
+  if (file.size > 2 * 1024 * 1024) {
+    message.error('图片大小不能超过2MB');
+    return;
+  }
+
+  uploading.value = true;
+  try {
+    await userApi.uploadAvatar(file);
+    message.success('头像更新成功');
+    // 重新加载用户信息
+    await authStore.loadCurrentUser();
+  } catch (error: any) {
+    message.error(error?.message || '上传失败，请重试');
+  } finally {
+    uploading.value = false;
+    // 清空input，允许重复选择同一文件
+    target.value = '';
+  }
 };
 
 const handleBindSteam = async () => {
@@ -158,6 +240,57 @@ export default {
   align-items: center;
   gap: 12px;
   padding: 16px 0;
+}
+
+.avatar-container {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.avatar-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.avatar-image:hover {
+  transform: scale(1.05);
+}
+
+.avatar-edit-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #0f766e;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid white;
+}
+
+.avatar-edit-btn:hover {
+  background: #0d9488;
+  transform: scale(1.1);
+}
+
+.avatar-preview {
+  display: flex;
+  justify-content: center;
+}
+
+.preview-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
 }
 
 .profile-name {

@@ -22,6 +22,15 @@ export const userApi = {
   },
   bindSteam(steamId: string) {
     return http.post<void>('/user/bind-steam', null, { params: { steamId } });
+  },
+  uploadAvatar(file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return http.post<User>('/user/avatar', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
   }
 };
 
