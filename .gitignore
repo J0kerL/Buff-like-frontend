@@ -3,6 +3,11 @@ dist
 .DS_Store
 *.local
 
+# Vue SFC compiled output
+*.vue.js
 
-# .idea
+# TypeScript build info
+*.tsbuildinfo
+
+# IDE
 .idea

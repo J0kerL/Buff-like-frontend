@@ -36,9 +36,11 @@ import { GridOutline, CartOutline, CubeOutline, ReceiptOutline, WalletOutline } 
 import TopBar from '@/components/TopBar.vue';
 import ProfileModal from '@/components/ProfileModal.vue';
 import { useAuthStore } from '@/stores/auth';
+import { useNotificationStore } from '@/stores/notification';
 import { money } from '@/types/format';
 
 const authStore = useAuthStore();
+const notificationStore = useNotificationStore();
 const router = useRouter();
 const route = useRoute();
 const message = useMessage();
@@ -87,10 +89,14 @@ onMounted(async () => {
       router.replace('/auth');
     }
   }
+  // 初始化WebSocket连接
+  notificationStore.connectWebSocket();
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize);
+  // 断开WebSocket连接
+  notificationStore.disconnectWebSocket();
 });
 </script>
 

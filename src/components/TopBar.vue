@@ -12,6 +12,7 @@
       </nav>
     </div>
     <div class="right">
+      <NotificationBell />
       <n-tag type="success" round>余额 {{ balance }}</n-tag>
       <n-dropdown :options="dropdownOptions" @select="onDropdownSelect" trigger="hover" placement="bottom-end">
         <div class="user-dropdown-trigger">
@@ -33,6 +34,7 @@
 import { h } from 'vue';
 import { MenuOutline, ChevronDownOutline, PersonCircleOutline, LogOutOutline } from '@vicons/ionicons5';
 import { NButton, NIcon, NMenu, NTag, NAvatar, NDropdown, type MenuOption } from 'naive-ui';
+import NotificationBell from '@/components/NotificationBell.vue';
 
 defineProps<{
   username?: string;

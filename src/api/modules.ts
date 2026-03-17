@@ -1,5 +1,5 @@
 import http from '@/api/http';
-import type { InventoryItem, InventoryStatistics, LoginVO, MarketListing, OrderItem, PageResult, User, WalletLog } from '@/types/api';
+import type { InventoryItem, InventoryStatistics, LoginVO, MarketListing, Notification, OrderItem, PageResult, User, WalletLog } from '@/types/api';
 
 export const authApi = {
   login(data: { username: string; password: string }) {
@@ -74,6 +74,9 @@ export const orderApi = {
   deliver(id: number) {
     return http.post<void>(`/order/${id}/deliver`);
   },
+  reject(id: number) {
+    return http.post<void>(`/order/${id}/reject`);
+  },
   confirm(id: number) {
     return http.post<void>(`/order/${id}/confirm`);
   },
@@ -100,6 +103,24 @@ export const walletApi = {
   },
   logs(params: Record<string, unknown>) {
     return http.get<PageResult<WalletLog>>('/wallet/logs', { params });
+  }
+};
+
+export const notificationApi = {
+  unreadCount() {
+    return http.get<number>('/notification/unread-count');
+  },
+  list(params: Record<string, unknown>) {
+    return http.get<PageResult<Notification>>('/notification/list', { params });
+  },
+  markAsRead(id: number) {
+    return http.post<void>(`/notification/${id}/read`);
+  },
+  markAsReadByOrderId(orderId: number) {
+    return http.post<void>(`/notification/mark-read-by-order/${orderId}`);
+  },
+  delete(id: number) {
+    return http.delete<void>(`/notification/${id}`);
   }
 };
 

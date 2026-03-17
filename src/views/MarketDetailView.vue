@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, h, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { NButton, NImage, useMessage } from 'naive-ui';
 import GlassPanel from '@/components/GlassPanel.vue';
@@ -70,7 +70,19 @@ const loadListings = async () => {
 const buy = async (id: number) => {
   try {
     const orderNo = await orderApi.create(id);
-    message.success(`创建订单成功：${orderNo}`);
+    message.success(
+      () => h('span', { style: 'display: inline-flex; align-items: center; gap: 8px;' }, [
+        h('span', null, `创建订单成功：${orderNo}`),
+        h(NButton, {
+          text: true,
+          type: 'primary',
+          size: 'small',
+          style: 'font-size: 13px;',
+          onClick: () => router.push({ name: 'orders' }),
+        }, { default: () => '去付款' }),
+      ]),
+      { duration: 5000 }
+    );
     await loadListings();
   } catch (error: any) {
     message.error(error.message || '购买失败');

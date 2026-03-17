@@ -7,7 +7,7 @@
       </div>
       <n-tabs type="segment" animated @update:value="onTabChange">
         <n-tab-pane name="buy" tab="我买到的">
-          <n-data-table :columns="buyColumns" :data="buyOrders" :pagination="false" :scroll-x="980" />
+          <n-data-table :columns="buyColumns" :data="buyOrders" :pagination="false" :scroll-x="980" :row-class-name="getRowClass" />
           <n-pagination
             style="margin-top: 12px"
             v-model:page="buyPage.pageNum"
@@ -18,7 +18,7 @@
           />
         </n-tab-pane>
         <n-tab-pane name="sell" tab="我卖出的">
-          <n-data-table :columns="sellColumns" :data="sellOrders" :pagination="false" :scroll-x="980" />
+          <n-data-table :columns="sellColumns" :data="sellOrders" :pagination="false" :scroll-x="980" :row-class-name="getRowClass" />
           <n-pagination
             style="margin-top: 12px"
             v-model:page="sellPage.pageNum"
@@ -35,16 +35,23 @@
 
 <script setup lang="ts">
 import { h, onMounted, reactive, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { NButton, NDataTable, NPagination, NSelect, NTabPane, NTabs, useMessage } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import GlassPanel from '@/components/GlassPanel.vue';
 import { orderApi } from '@/api/modules';
 import type { OrderItem } from '@/types/api';
 import { formatDateTime, money } from '@/types/format';
+import { useAuthStore } from '@/stores/auth';
+import { useNotificationStore } from '@/stores/notification';
 
+const route = useRoute();
 const message = useMessage();
+const authStore = useAuthStore();
+const notificationStore = useNotificationStore();
 const status = ref<number | null>(null);
 const currentTab = ref<'buy' | 'sell'>('buy');
+const highlightOrderId = ref<number | null>(null);
 
 const statusOptions = [
   { label: '待支付', value: 0 },
@@ -104,7 +111,7 @@ const buyColumns: DataTableColumns<OrderItem> = [
     render: (row) => {
       if (row.status === 0) {
         return h('div', { style: 'display:flex;gap:8px;' }, [
-          actionButton('支付', () => runAction(() => orderApi.pay(row.id))),
+          actionButton('支付', () => runAction(() => orderApi.pay(row.id), '支付成功')),
           actionButton('取消', () => runAction(() => orderApi.cancel(row.id)), 'error')
         ]);
       }
@@ -133,21 +140,28 @@ const sellColumns: DataTableColumns<OrderItem> = [
   {
     title: '操作',
     key: 'actions',
-    width: 120,
+    width: 200,
     render: (row) => {
       if (row.status === 1) {
-        return actionButton('发货', () => runAction(() => orderApi.deliver(row.id)), 'primary');
+        return h('div', { style: 'display:flex;gap:8px;' }, [
+          actionButton('发货', () => runAction(() => orderApi.deliver(row.id), '发货成功'), 'primary'),
+          actionButton('拒绝发货', () => runAction(() => orderApi.reject(row.id), '已拒绝发货，款项已退还买家'), 'error')
+        ]);
       }
       return '-';
     }
   }
 ];
 
-const runAction = async (fn: () => Promise<void>) => {
+const getRowClass = (row: OrderItem) => {
+  return row.id === highlightOrderId.value ? 'highlight-row' : '';
+};
+
+const runAction = async (fn: () => Promise<void>, successMsg = '操作成功') => {
   try {
     await fn();
-    message.success('操作成功');
-    await Promise.all([loadBuy(), loadSell()]);
+    message.success(successMsg);
+    await Promise.all([loadBuy(), loadSell(), authStore.loadCurrentUser()]);
   } catch (error: any) {
     message.error(error.message || '操作失败');
   }
@@ -182,9 +196,21 @@ watch(status, () => {
   }
 });
 
+// 处理从通知跳转过来的情况
+const handleOrderFromNotification = async () => {
+  const orderId = route.query.orderId;
+  if (orderId) {
+    const id = Number(orderId);
+    highlightOrderId.value = id;
+    // 标记该订单相关的通知为已读
+    await notificationStore.markAsReadByOrderId(id);
+  }
+};
+
 onMounted(async () => {
   try {
-    await Promise.all([loadBuy(), loadSell()]);
+    await Promise.all([loadBuy(), loadSell(), authStore.loadCurrentUser()]);
+    await handleOrderFromNotification();
   } catch (error: any) {
     message.error(error.message || '加载订单失败');
   }
@@ -202,6 +228,22 @@ onMounted(async () => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
+}
+</style>
+
+<style>
+.highlight-row {
+  background-color: #fef3c7 !important;
+  animation: fade-highlight 3s ease-out forwards;
+}
+
+@keyframes fade-highlight {
+  0% {
+    background-color: #fef3c7;
+  }
+  100% {
+    background-color: transparent;
+  }
 }
 </style>
 

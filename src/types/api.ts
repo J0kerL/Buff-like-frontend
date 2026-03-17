@@ -92,3 +92,19 @@ export interface WalletLog {
   createTime: string;
 }
 
+export interface Notification {
+  id: number;
+  type: number;
+  title: string;
+  content: string;
+  orderId: number;
+  isRead: boolean;
+  createTime: string;
+}
+
+export interface WebSocketMessage {
+  type: string;
+  data?: Notification;
+  message?: string;
+}
+
